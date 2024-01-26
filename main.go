@@ -1,15 +1,18 @@
 package main
 
-import "example.com/gotax/prices"
+import (
+	"example.com/gotax/prices"
+	"fmt"
+)
 
 func main() {
-	taxRate := []float64{0, 0.07, 0.1, 0.15}
+	taxRates := []float64{0, 0.07, 0.1, 0.15}
 
 	result := make(map[float64][]float64)
 
-	for _, taxRate := range taxRate {
-		var taxIncludedPrices = make([]float64, len(prices))
-		prices.NewTaxIncludedPriceJob()
+	for _, taxRate := range taxRates {
+		priceJob := prices.NewTaxIncludedPriceJob(taxRate)
+		priceJob.Process()
 	}
 
 	fmt.Println(result)

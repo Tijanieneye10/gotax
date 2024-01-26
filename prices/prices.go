@@ -1,6 +1,11 @@
 package prices
 
-import "fmt"
+import (
+	"bufio"
+	"example.com/gotax/conversion"
+	"fmt"
+	"os"
+)
 
 type TaxIncludedPriceJob struct {
 	TaxRate           float64
@@ -16,8 +21,48 @@ func NewTaxIncludedPriceJob(taxRate float64) *TaxIncludedPriceJob {
 }
 
 func (job *TaxIncludedPriceJob) Process() {
-	result := make(map[string]float64)
+
+	job.loadData()
+
+	result := make(map[string]string)
+
 	for _, price := range job.InputPrices {
-		result[fmt.Sprintf("%.2f", price)] = price * (1 + job.TaxRate)
+		taxIncludedPrices := price * (1 + job.TaxRate)
+		result[fmt.Sprintf("%.2f", price)] = fmt.Sprintf("%.2f", taxIncludedPrices)
 	}
+
+	fmt.Println(result)
+}
+
+func (job *TaxIncludedPriceJob) loadData() {
+
+	file, err := os.Open("price.txt")
+
+	if err != nil {
+		fmt.Println("An error occurred")
+		fmt.Println(err)
+		return
+	}
+
+	scanner := bufio.NewScanner(file)
+	var lines []string
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	err = scanner.Err()
+
+	if err != nil {
+		err := file.Close()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		return
+	}
+
+	//Convert the text to float64
+	prices, _ := conversion.StringToFloat(lines)
+	job.InputPrices = prices
+	_ = file.Close()
 }
