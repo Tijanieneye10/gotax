@@ -16,6 +16,8 @@ type FileManager struct {
 func (fm FileManager) ReadLines() ([]string, error) {
 	file, err := os.Open(fm.InputFilePath)
 
+	defer file.Close()
+
 	if err != nil {
 		fmt.Println("An error occurred")
 		fmt.Println(err)
@@ -34,7 +36,6 @@ func (fm FileManager) ReadLines() ([]string, error) {
 		return nil, errors.New("failed to open file")
 	}
 
-	file.Close()
 	return lines, nil
 }
 
@@ -44,14 +45,14 @@ func (fm FileManager) WriteResult(data any) error {
 		return errors.New("file couldn't be created")
 	}
 
+	defer file.Close()
+
 	encoder := json.NewEncoder(file)
 	err = encoder.Encode(data)
 	if err != nil {
-		file.Close()
 		return errors.New("data couldn't be converted to JSON")
 	}
 
-	file.Close()
 	return nil
 }
 
